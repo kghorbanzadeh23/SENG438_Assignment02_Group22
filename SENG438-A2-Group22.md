@@ -15,176 +15,477 @@ In this lab, we tested several methods from JFreeChart, an open-source Java Fram
 
 # 2 Detailed description of unit test strategy
 
-Our unit test strategy is based on black-box testing techniques with a strong focus on Equivalence Partitioning and Boundary Value Analysis. Specifically, we designed our test cases to validate the behavior of the `DataUtilities` and `Range` classes by:
+Our test strategy focuses on applying black-box testing techniques, specifically Equivalence Class Testing (ECT) and Boundary Value Testing (BVT) to thoroughly test the DataUtilities and Range classes. These techniques allow us to effectively test the functionality without knowledge of the internal implementation.
 
-- **Identifying Equivalence Classes:**  
-  For each method, we classified input data into valid and invalid partitions. For example, for the method `calculateColumnTotal`, we considered a valid `Values2D` object with multiple rows, an empty data scenario, and an invalid (null) input. Similar partitions were defined for other methods such as `calculateRowTotal`, `createNumberArray`, `createNumberArray2D`, and `getCumulativePercentages` within the `DataUtilities` class, as well as for the methods in the `Range` class like `getCentralValue`, `contains`, `expand`, `shift`, and `combine`.
+## Partitions and Boundary Values for DataUtilities Class
 
-- **Defining Boundary Values:**  
-  We paid special attention to the edge cases by setting boundary conditions. For instance, tests for index boundaries in the `calculateColumnTotal` and `calculateRowTotal` methods were created to verify behavior at the lower (0) and upper limits (number of rows/columns - 1). Similarly, methods that transform arrays (`createNumberArray` and `createNumberArray2D`) have tests to validate behavior on arrays of minimum (0) and maximum achievable sizes. The same approach applies for margin, delta or range limits in the `Range` methods.
+### 1. calculateColumnTotal(Values2D data, int column)
 
-- **Test Case Design for Complex Scenarios:**  
-  For methods like `getCumulativePercentages`, which involve aggregating data from a range of keys, our tests ensure that scenarios with a single key, multiple keys, and even empty or null inputs are thoroughly considered. The tests verify that cumulative values are calculated correctly across increasing keys and also handle unexpected or edge inputs gracefully.
+**Parameter: data**
+- *Valid Partitions:*
+    - Valid Values2D object with multiple rows
+    - Valid Values2D object with zero rows
+- *Invalid Partitions:*
+    - null Values2D
+- *Boundary Values:* N/A
 
-- **Focus on Expected Exceptions and Failures:**  
-  In addition to validating correct calculations, our test strategy accounts for improper usage scenarios such as null inputs or out-of-bound indices. In these cases, the tests are designed to confirm that the appropriate exceptions (e.g., NullPointerException or IllegalArgumentException) are thrown as per the specifications.
+**Parameter: column**
+- *Valid Partitions:*
+    - Valid column index within range of data
+- *Invalid Partitions:*
+    - Negative column index
+    - Column index is greater than or equal to number of columns
+- *Boundary Values:*
+    - Lower bound: 0
+    - Upper bound: number of columns - 1
 
-- **Structured Test Cases:**  
-  Each method is tested by multiple cases that cover typical use cases and edge cases. For instance, the `Range` class methods like `getCentralValue` and `contains` are tested with ranges consisting of positive, negative, and zero values. The `expand`, `shift`, and `combine` methods are tested both with valid ranges and with scenarios where one or both operands are null, ensuring robust handling even when the inputs are at their boundaries.
+**Values:**
+- *Valid Partitions:*
+    - Rows with numeric values
+    - Rows with null values (should be ignored)
+- *Invalid Partitions:* N/A
+- *Boundary Values:* N/A
 
-Overall, this strategy ensures that both normal and edge-case behaviors are verified, contributing to a comprehensive assessment of the functionality and reliability of the JFreeChart utility classes.
+### 2. calculateRowTotal(Values2D data, int row)
+
+**Parameter: data**
+- *Valid Partitions:*
+    - Valid Values2D object with multiple columns
+    - Valid Values2D object with zero columns
+- *Invalid Partitions:*
+    - null Values2D
+- *Boundary Values:* N/A
+
+**Parameter: row**
+- *Valid Partitions:*
+    - Valid row index within range of data
+- *Invalid Partitions:*
+    - Negative row index
+    - Row index is greater than or equal number of rows
+- *Boundary Values:*
+    - Lower bound: 0
+    - Upper bound: number of rows - 1
+
+**Values:**
+- *Valid Partitions:*
+    - Columns with numeric values
+    - Columns with null values (should be ignored)
+- *Invalid Partitions:* N/A
+- *Boundary Values:* N/A
+
+### 3. createNumberArray(double[] data)
+
+**Parameter: data**
+- *Valid Partitions:*
+    - Valid double array with multiple elements
+    - Valid double array with zero elements
+- *Invalid Partitions:*
+    - null double array
+- *Boundary Values:*
+    - Lower bound: array length = 0
+    - Upper bound: large array size
+
+### 4. createNumberArray2D(double[][] data)
+
+**Parameter: data**
+- *Valid Partitions:*
+    - Valid 2D array with multiple rows and columns
+    - Valid 2D array with zero rows/columns
+    - Valid 2D array with rows and zero columns
+- *Invalid Partitions:*
+    - null 2D array
+    - 2D array containing null rows
+    - 2D array containing NaN values
+- *Boundary Values:*
+    - Lower bound: 0 rows, 0 columns
+    - Upper bound: large array dimensions
+
+### 5. getCumulativePercentages(KeyedValues data)
+
+**Parameter: data**
+- *Valid Partitions:*
+    - Valid KeyedValues with multiple keys
+    - Valid KeyedValues with zero keys
+- *Invalid Partitions:*
+    - null KeyedValues
+- *Boundary Values:*
+    - Lower bound: 1 key
+    - Upper bound: large dataset
+
+**Values:**
+- *Valid Partitions:*
+    - All positive values
+    - Mixed positive and zero values
+- *Invalid Partitions:*
+    - Negative values (behavior undefined)
+- *Boundary Values:* N/A
+
+## Partitions and Boundary Values for Range Class
+
+### 1. getCentralValue()
+
+**Parameter: Range bounds**
+- *Valid Partitions:*
+    - Range with positive bounds
+    - Range with negative bounds
+    - Range with zero bounds
+    - Range with negative lower bound and positive upper bound
+- *Invalid Partitions:*
+    - Range with lower bound is greater than upper bound
+- *Boundary Values:*
+    - Lower boundary: extremely large negative value
+    - Upper boundary: extremely large positive value
+
+### 2. contains(double value)
+
+**Parameter: value**
+- *Valid Partitions:*
+    - Value within range
+    - Value outside range (less than lower bound)
+    - Value outside range (greater than upper bound)
+- *Invalid Partitions:* N/A
+- *Boundary Values:*
+    - Value at lower boundary
+    - Value at upper boundary
+
+### 3. expand(Range base, double lowerMargin, double upperMargin)
+
+**Parameter: base**
+- *Valid Partitions:*
+    - Valid Range
+- *Invalid Partitions:*
+    - null Range
+- *Boundary Values:* N/A
+
+**Parameter: lowerMargin**
+- *Valid Partitions:*
+    - Zero margin
+    - Positive margin
+- *Invalid Partitions:*
+    - Negative margin (behavior undefined)
+- *Boundary Values:*
+    - Lower bound: 0
+    - Upper bound: 1.0 (or larger)
+
+**Parameter: upperMargin**
+- *Valid Partitions:*
+    - Zero margin
+    - Positive margin
+- *Invalid Partitions:*
+    - Negative margin (behavior undefined)
+- *Boundary Values:*
+    - Lower bound: 0
+    - Upper bound: 1.0 (or larger)
+
+### 4. shift(Range base, double delta)
+
+**Parameter: base**
+- *Valid Partitions:*
+    - Valid Range
+- *Invalid Partitions:*
+    - null Range
+- *Boundary Values:* N/A
+
+**Parameter: delta**
+- *Valid Partitions:*
+    - Zero delta
+    - Positive delta
+    - Negative delta
+- *Invalid Partitions:* N/A
+- *Boundary Values:*
+    - Lower bound: 0
+    - Upper bound: large value
+
+### 5. combine(Range range1, Range range2)
+
+**Parameter: range1**
+- *Valid Partitions:*
+    - Valid Range
+- *Invalid Partitions:*
+    - null Range
+- *Boundary Values:*
+    - Range with extremely low bounds
+    - Range with extremely high bounds
+
+**Parameter: range2**
+- *Valid Partitions:*
+    - Valid Range
+- *Invalid Partitions:*
+    - null Range
+- *Boundary Values:*
+    - Range with extremely low bounds
+    - Range with extremely high bounds
+
+**Combination:**
+- *Valid Partitions:*
+    - Two valid ranges
+    - One valid range and one null range
+    - Two null ranges
+- *Invalid Partitions:* N/A
+- *Boundary Values:* N/A
 
 # 3 Test cases developed
 
-The following test methods were implemented in our test classes to cover the partitions described in our test strategy:
+### DataUtilities Class
 
-DataUtilities Class
+#### calculateColumnTotal(Values2D data, int column)
 
-    calculateColumnTotal(Values2D data, int column)
-        Equivalence & Boundary Tests:
-            testCalculateColumnTotal_ValidMultipleRows()
-                Tests a valid Values2D with multiple rows and a typical column index.
-            testCalculateColumnTotal_EmptyData()
-                Tests a Values2D with zero rows (empty data) to ensure the total is zero.
-            testCalculateColumnTotal_NullInput_ThrowsException()
-                Verifies that a null input throws a NullPointerException.
-            testCalculateColumnTotal_WithNullValues_Ignored()
-                Ensures that null values within a column are properly ignored during summing.
-            testCalculateColumnTotal_IndexOutOfBounds()
-                Confirms that an out-of-bound column index raises an IndexOutOfBoundsException.
+- **testCalculateColumnTotal_ValidMultipleRows()**
+    - *Partitions tested:* Valid Values2D with multiple rows, Valid column index, Rows with numeric values
+    - *Boundary values tested:* N/A
 
-    calculateRowTotal(Values2D data, int row)
-        Equivalence & Boundary Tests:
-            testCalculateRowTotal_ValidMultipleColumns()
-                Checks that the sum is correctly computed for a valid row with several columns.
-            testCalculateRowTotal_EmptyRow()
-                Tests a row with zero columns to return a total of 0.0.
-            testCalculateRowTotal_NullInput_ThrowsException()
-                Verifies expected exception behavior when a null dataset is passed.
-            testCalculateRowTotal_RowIndexLowerBoundary()
-                Covers the lower boundary by testing row index 0.
-            testCalculateRowTotal_RowIndexUpperBoundary()
-                Covers the upper row index (number of rows - 1).
-            
-    createNumberArray(double[] data)
-        Equivalence & Boundary Tests:
-            testCreateNumberArray_ValidArray()
-                Verifies proper conversion with a typical double array.
-            testCreateNumberArray_EmptyArray()
-                Tests conversion with an empty array (length 0).
-            testCreateNumberArray_NullArray_ThrowsIllegalArgumentException()
-                Confirms a null array input throws the proper exception.
-            testCreateNumberArray_LowerBoundary()
-                Checks behavior when array length is zero (lower boundary).
-            testCreateNumberArray_UpperBoundary()
-                Uses a large array (upper boundary) to validate conversion consistency.
+- **testCalculateColumnTotal_EmptyData()**
+    - *Partitions tested:* Valid Values2D with zero rows
+    - *Boundary values tested:* N/A
 
-    createNumberArray2D(double[][] data)
-        Equivalence & Boundary Tests:
-            testCreateNumberArray2D_Valid2DArray()
-                Tests a typical 2D double array with multiple rows and columns.
-            testCreateNumberArray2D_Empty2DArray()
-                Verifies that an empty 2D array (0 rows/columns) is handled correctly.
-            testCreateNumberArray2D_NullArray_ThrowsIllegalArgumentException()
-                Ensures a null 2D array input throws an exception.
-            testCreateNumberArray2D_ContainingNullRow_ThrowsException()
-                Tests a 2D array that includes a null row as invalid input.
-            testCreateNumberArray2D_NullColumn_ThrowsException()
-                Checks handling when a column contains a null (or NaN) value.
-            testCreateNumberArray2D_ZeroColumns()
-                Validates behavior with rows defined but zero columns.
-            testCreateNumberArray2D_DimensionsLowerBoundary()
-                Covers the lower boundary for the dimensions of the array.
-            testCreateNumberArray2D_DimensionsUpperBoundary()
-                Uses a large 2D array to verify the upper boundary constraints.
+- **testCalculateColumnTotal_NullInput_ThrowsException()**
+    - *Partitions tested:* null Values2D
+    - *Boundary values tested:* N/A
 
-    getCumulativePercentages(KeyedValues data)
-        Equivalence & Boundary Tests:
-            testGetCumulativePercentages_MultipleKeys()
-                Ensures proper cumulative calculations for a dataset with several keys.
-            testGetCumulativePercentages_EmptyDataset()
-                Verifies that an empty dataset returns an empty result.
-            testGetCumulativePercentages_NullInput_ThrowsIllegalArgumentException()
-                Checks for the proper exception when a null KeyedValues object is provided.
-            testGetCumulativePercentages_SingleKeyBoundary()
-                Tests the lower boundary with just one key.
-            testGetCumulativePercentages_UpperBoundaryWithLargeDataset()
-                Validates cumulative percentage calculations when using a dataset at the upper boundary.
+- **testCalculateColumnTotal_WithNullValues_Ignored()**
+    - *Partitions tested:* Rows with null values (should be ignored)
+    - *Boundary values tested:* N/A
 
-Range Class
+- **testCalculateColumnTotal_IndexOutOfBounds()**
+    - *Partitions tested:* Column index greater than or equal to number of columns
+    - *Boundary values tested:* N/A
 
-    getCentralValue()
-        Equivalence & Boundary Tests:
-            testGetCentralValue_PositiveBounds()
-                Tests calculation with a range that has positive lower and upper bounds.
-            testGetCentralValue_NegativeBounds()
-                Covers the scenario where both bounds are negative.
-            testGetCentralValue_ZeroBounds()
-                Verifies behavior when both lower and upper bounds are zero.
-            testGetCentralValue_NegativeLower_PositiveUpper()
-                Checks the central value calculation for a range straddling zero.
-            testGetCentralValue_LowerBoundary()
-                Tests behavior at the extreme lower boundary (e.g., very large negative value).
-            testGetCentralValue_InvalidRange_ThrowsException()
-                Ensures that a reverse range (lower bound greater than upper) throws an exception.
-            testGetCentralValue_UpperBoundary()
-                Covers the upper boundary with extremely large positive values.
-            
-    contains(double value)
-        Equivalence & Boundary Tests:
-            testContains_ValueWithinRange()
-                Verifies that a value clearly within the range returns true.
-            testContains_ValueBelowRange()
-                Checks that a value below the lower bound is correctly identified as false.
-            testContains_ValueAboveRange()
-                Ensures that a value above the upper bound is not contained in the range.
-            testContains_ValueAtLowerBoundary()
-                Tests inclusion of a value exactly equal to the lower boundary.
-            testContains_ValueAtUpperBoundary()
-                Tests inclusion of a value exactly equal to the upper boundary.
-            
-    expand(Range base, double lowerMargin, double upperMargin)
-        Equivalence & Boundary Tests:
-            testExpand_ValidRange_PositiveMargins()
-                Checks that positive margins correctly expand the range.
-            testExpand_ValidRange_ZeroMargins()
-                Verifies that zero margins leave the range unchanged.
-            testExpand_NullRange_ThrowsIllegalArgumentException()
-                Ensures a null range input results in an exception.
-            testExpand_MarginsAtLowerBoundary()
-                Covers the condition where margins are at their lower limit (0).
-            testExpand_MarginsAtUpperBoundary()
-                Tests the situation with maximum margin values.
-            
-    shift(Range base, double delta)
-        Equivalence & Boundary Tests:
-            testShift_ValidRange_PositiveDelta()
-                Verifies that the range shifts correctly when a positive delta is applied.
-            testShift_ValidRange_NegativeDelta()
-                Checks proper shift for a negative delta.
-            testShift_NullRange_ThrowsException()
-                Ensures that shifting a null range throws an exception.
-            testShift_DeltaAtLowerBoundary()
-                Tests the scenario where the delta is zero (lower boundary).
-            testShift_DeltaAtUpperBoundary()
-                Covers the behavior when the delta is a very large number (upper boundary).
-        
-    combine(Range range1, Range range2)
-        Equivalence & Boundary Tests:
-            testCombine_TwoValidRanges()
-                Verifies that combining two valid ranges produces the correct overall range.
-            testCombine_FirstRangeNull()
-                Checks that combining a null first range with a valid second range returns the second range.
-            testCombine_SecondRangeNull()
-                Ensures that combining a valid first range with a null second range returns the first range.
-            testCombine_BothRangesNull()
-                Verifies that combining two null ranges returns a null result.
-            testCombine_RangeBoundsAtLowerBoundary()
-                Tests combining ranges with extreme lower boundary values.
-            testCombine_RangeBoundsAtUpperBoundary()
-                Tests combining ranges with extreme upper boundary values.
+#### calculateRowTotal(Values2D data, int row)
 
-Each test method was designed to target specific equivalence classes (valid inputs, empty inputs, and null or invalid inputs) as well as to check behavior at the boundaries (e.g., first/last indices, zero or maximum sizes, extreme numeric limits). This approach ensures comprehensive coverage of both typical and edge-case scenarios for the JFreeChart utility classes.
+- **testCalculateRowTotal_ValidMultipleColumns()**
+    - *Partitions tested:* Valid Values2D with multiple columns, Valid row index, Columns with numeric values
+    - *Boundary values tested:* N/A
+
+- **testCalculateRowTotal_EmptyRow()**
+    - *Partitions tested:* Valid Values2D with zero columns
+    - *Boundary values tested:* N/A
+
+- **testCalculateRowTotal_NullInput_ThrowsException()**
+    - *Partitions tested:* null Values2D
+    - *Boundary values tested:* N/A
+
+- **testCalculateRowTotal_RowIndexLowerBoundary()**
+    - *Partitions tested:* Valid row index
+    - *Boundary values tested:* Lower bound: row index = 0
+
+- **testCalculateRowTotal_RowIndexUpperBoundary()**
+    - *Partitions tested:* Valid row index
+    - *Boundary values tested:* Upper bound: row index = number of rows - 1
+
+#### createNumberArray(double[] data)
+
+- **testCreateNumberArray_ValidArray()**
+    - *Partitions tested:* Valid double array with multiple elements
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray_EmptyArray()**
+    - *Partitions tested:* Valid double array with zero elements
+    - *Boundary values tested:* Lower bound: array length = 0
+
+- **testCreateNumberArray_NullArray_ThrowsIllegalArgumentException()**
+    - *Partitions tested:* null double array
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray_LowerBoundary()**
+    - *Partitions tested:* Valid double array with zero elements
+    - *Boundary values tested:* Lower bound: array length = 0
+
+- **testCreateNumberArray_UpperBoundary()**
+    - *Partitions tested:* Valid double array with multiple elements
+    - *Boundary values tested:* Upper bound: large array size (100,000 elements)
+
+#### createNumberArray2D(double[][] data)
+
+- **testCreateNumberArray2D_Valid2DArray()**
+    - *Partitions tested:* Valid 2D array with multiple rows and columns
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray2D_Empty2DArray()**
+    - *Partitions tested:* Valid 2D array with zero rows/columns
+    - *Boundary values tested:* Lower bound: 0 rows, 0 columns
+
+- **testCreateNumberArray2D_NullArray_ThrowsIllegalArgumentException()**
+    - *Partitions tested:* null 2D array
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray2D_ContainingNullRow_ThrowsException()**
+    - *Partitions tested:* 2D array containing null rows
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray2D_NullColumn_ThrowsException()**
+    - *Partitions tested:* 2D array containing NaN values
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray2D_ZeroColumns()**
+    - *Partitions tested:* Valid 2D array with rows and zero columns
+    - *Boundary values tested:* N/A
+
+- **testCreateNumberArray2D_DimensionsLowerBoundary()**
+    - *Partitions tested:* Valid 2D array with zero rows/columns
+    - *Boundary values tested:* Lower bound: 0 rows, 0 columns
+
+- **testCreateNumberArray2D_DimensionsUpperBoundary()**
+    - *Partitions tested:* Valid 2D array with multiple rows and columns
+    - *Boundary values tested:* Upper bound: large array dimensions (500x500)
+
+#### getCumulativePercentages(KeyedValues data)
+
+- **testGetCumulativePercentages_MultipleKeys()**
+    - *Partitions tested:* Valid KeyedValues with multiple keys, All positive values
+    - *Boundary values tested:* N/A
+
+- **testGetCumulativePercentages_EmptyDataset()**
+    - *Partitions tested:* Valid KeyedValues with zero keys
+    - *Boundary values tested:* N/A
+
+- **testGetCumulativePercentages_NullInput_ThrowsIllegalArgumentException()**
+    - *Partitions tested:* null KeyedValues
+    - *Boundary values tested:* N/A
+
+- **testGetCumulativePercentages_SingleKeyBoundary()**
+    - *Partitions tested:* Valid KeyedValues with multiple keys
+    - *Boundary values tested:* Lower bound: 1 key
+
+- **testGetCumulativePercentages_UpperBoundaryWithLargeDataset()**
+    - *Partitions tested:* Valid KeyedValues with multiple keys
+    - *Boundary values tested:* Upper bound: large dataset (10,000 keys)
+
+### Range Class
+
+#### getCentralValue()
+
+- **testGetCentralValue_PositiveBounds()**
+    - *Partitions tested:* Range with positive bounds
+    - *Boundary values tested:* N/A
+
+- **testGetCentralValue_NegativeBounds()**
+    - *Partitions tested:* Range with negative bounds
+    - *Boundary values tested:* N/A
+
+- **testGetCentralValue_ZeroBounds()**
+    - *Partitions tested:* Range with zero bounds
+    - *Boundary values tested:* N/A
+
+- **testGetCentralValue_NegativeLower_PositiveUpper()**
+    - *Partitions tested:* Range with negative lower bound and positive upper bound
+    - *Boundary values tested:* N/A
+
+- **testGetCentralValue_LowerBoundary()**
+    - *Partitions tested:* Range with negative bounds
+    - *Boundary values tested:* Lower boundary: extremely large negative value
+
+- **testGetCentralValue_InvalidRange_ThrowsException()**
+    - *Partitions tested:* Range with lower bound > upper bound
+    - *Boundary values tested:* N/A
+
+- **testGetCentralValue_UpperBoundary()**
+    - *Partitions tested:* Range with positive bounds
+    - *Boundary values tested:* Upper boundary: extremely large positive value
+
+#### contains(double value)
+
+- **testContains_ValueWithinRange()**
+    - *Partitions tested:* Value within range
+    - *Boundary values tested:* N/A
+
+- **testContains_ValueBelowRange()**
+    - *Partitions tested:* Value outside range (less than lower bound)
+    - *Boundary values tested:* N/A
+
+- **testContains_ValueAboveRange()**
+    - *Partitions tested:* Value outside range (greater than upper bound)
+    - *Boundary values tested:* N/A
+
+- **testContains_ValueAtLowerBoundary()**
+    - *Partitions tested:* Value within range
+    - *Boundary values tested:* Value at lower boundary
+
+- **testContains_ValueAtUpperBoundary()**
+    - *Partitions tested:* Value within range
+    - *Boundary values tested:* Value at upper boundary
+
+#### expand(Range base, double lowerMargin, double upperMargin)
+
+- **testExpand_ValidRange_PositiveMargins()**
+    - *Partitions tested:* Valid Range, Positive margin
+    - *Boundary values tested:* N/A
+
+- **testExpand_ValidRange_ZeroMargins()**
+    - *Partitions tested:* Valid Range, Zero margin
+    - *Boundary values tested:* N/A
+
+- **testExpand_NullRange_ThrowsIllegalArgumentException()**
+    - *Partitions tested:* null Range
+    - *Boundary values tested:* N/A
+
+- **testExpand_MarginsAtLowerBoundary()**
+    - *Partitions tested:* Valid Range, Zero margin
+    - *Boundary values tested:* Lower bound: margin = 0
+
+- **testExpand_MarginsAtUpperBoundary()**
+    - *Partitions tested:* Valid Range, Positive margin
+    - *Boundary values tested:* Upper bound: margin = 1.0
+
+#### shift(Range base, double delta)
+
+- **testShift_ValidRange_PositiveDelta()**
+    - *Partitions tested:* Valid Range, Positive delta
+    - *Boundary values tested:* N/A
+
+- **testShift_ValidRange_NegativeDelta()**
+    - *Partitions tested:* Valid Range, Negative delta
+    - *Boundary values tested:* N/A
+
+- **testShift_NullRange_ThrowsException()**
+    - *Partitions tested:* null Range
+    - *Boundary values tested:* N/A
+
+- **testShift_DeltaAtLowerBoundary()**
+    - *Partitions tested:* Valid Range, Zero delta
+    - *Boundary values tested:* Lower bound: delta = 0
+
+- **testShift_DeltaAtUpperBoundary()**
+    - *Partitions tested:* Valid Range, Positive delta
+    - *Boundary values tested:* Upper bound: large value (Double.MAX_VALUE/2)
+
+#### combine(Range range1, Range range2)
+- **testCombine_TwoValidRanges()**
+    - *Partitions tested:* Two valid ranges
+    - *Boundary values tested:* N/A
+
+- **testCombine_FirstRangeNull()**
+    - *Partitions tested:* One null range + one valid range
+    - *Boundary values tested:* N/A
+
+- **testCombine_SecondRangeNull()**
+    - *Partitions tested:* One valid range + one null range
+    - *Boundary values tested:* N/A
+
+- **testCombine_BothRangesNull()**
+    - *Partitions tested:* Two null ranges
+    - *Boundary values tested:* N/A
+
+- **testCombine_LowerBoundary()**
+    - *Partitions tested:* Two valid ranges
+    - *Boundary values tested:* Range with extremely low bounds (Double.NEGATIVE_INFINITY)
+
+- **testCombine_UpperBoundary()**
+    - *Partitions tested:* Two valid ranges
+    - *Boundary values tested:* Range with extremely high bounds (Double.POSITIVE_INFINITY)
+
+- **Benefits and Drawbacks of Mocking**
+  - **Benefits:**
+    - Mocking allows us to isolate whatever code is under test by simulating dependencies, letting us do more focused testing of specific functionalities without requiring that the components actually be implemented.
+    - It enables testing of scenarios that might be difficult to reproduce with real dependencies.
+    - Increases test speed by eliminating the need to set up complex dependency chains.
+    - Provides better control over test conditions, allowing for precise testing of edge cases.
+  
+  - **Drawbacks:**
+    - Creating and configuring mock objects can be time-consuming, especially for complex interfaces like KeyedValues.
+    - Mocks may not perfectly replicate the behavior of real objects, potentially leading to tests that pass but fail in production.
+    - Over-reliance on mocks can create a disconnect between tests and actual runtime conditions.
+    - When interfaces change, all associated mocks require updates, increasing maintenance overhead.
+    - Debugging can become more challenging when tests involve multiple layers of mocked objects.
 
 # 4 How the team work/effort was divided and managed
 
